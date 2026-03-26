@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenMath Grade 11 Quiz Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 95%;
+            overflow: hidden;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            height: 10px;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #4ecdc4;
+            height: 100%;
+            width: 10%;
+            transition: width 0.5s ease;
+        }
+
+        .score {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .question-container {
+            padding: 40px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .question {
+            font-size: 1.4em;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        .option:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: translateY(-2px);
+        }
+
+        .option.correct {
+            background: #c8e6c9;
+            border-color: #4caf50;
+            animation: pulse 0.6s ease;
+        }
+
+        .option.incorrect {
+            background: #ffcdd2;
+            border-color: #f44336;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 140px;
+        }
+
+        .btn-primary { background: #667eea; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #333; }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .hint-box {
+            background: linear-gradient(45deg, #ffeaa7, #fab1a0);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+            border-left: 5px solid #fdcb6e;
+        }
+
+        .hint-box.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .result-content {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            transform: scale(0.8);
+            animation: modalPop 0.5s ease forwards;
+        }
+
+        @keyframes modalPop {
+            to { transform: scale(1); }
+        }
+
+        .badge {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .options { grid-template-columns: 1fr; }
+            .question-container { padding: 20px; }
+            .header h1 { font-size: 1.8em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🧮 GenMath Grade 11</h1>
+            <p>Philippines K12 Curriculum • Pop Quiz Challenge</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="score">
+                Score: <span id="currentScore">0</span>/10 | 
+                Question: <span id="currentQuestion">1</span>
+            </div>
+        </div>
+
+        <div class="question-container">
+            <div class="question" id="questionText"></div>
+            
+            <div class="options" id="options"></div>
+            
+            <div class="hint-box" id="hintBox">
+                <h3>💡 AI Hint</h3>
+                <div id="hintText"></div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-warning" id="hintBtn">💡 Get AI Hint</button>
+                <button class="btn btn-secondary" id="skipBtn">⏭️ Skip</button>
+                <button class="btn btn-success" id="nextBtn" style="display:none;">✅ Next Question</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            Made for Grade 11 GenMath • Practice makes perfect! 📚
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="result-modal" id="resultModal">
+        <div class="result-content">
+            <div class="badge" id="resultBadge">🏆</div>
+            <h2 id="resultTitle">Amazing!</h2>
+            <p id="resultMessage"></p>
+            <p style="font-size: 2em; margin: 20px 0;">Final Score: <span id="finalScore">0</span>/10</p>
+            <button class="btn btn-primary" id="restartBtn" style="font-size: 1.2em; padding: 20px 40px;">🔄 Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What is the <strong>DOMAIN</strong> of the function \$ f(x) = \\sqrt{3x - 6} \$?",
+                options: ["\$ x \\geq 2 \\$", "\$ x > 2 \\$", "\$ x \\leq 2 \\$", "All real numbers"],
+                answer: 0,
+                hint: "For square roots, the expression inside must be ≥ 0. Solve: 3x - 6 ≥ 0"
+            },
+            {
+                question: "Determine the <strong>TRUTH VALUE</strong> of: <br>\\$ \\sim(p \\land q) \\leftrightarrow (\\sim p \\lor \\sim q) \\$",
+                options: ["Always TRUE (Tautology)", "Always FALSE", "Sometimes TRUE", "Cannot be determined"],
+                answer: 0,
+                hint: "This is De Morgan's Law! Try truth table or remember: NOT(AND) = NOT OR NOT"
+            },
+            {
+                question: "In how many ways can 5 distinct books be arranged on a shelf?",
+                options: ["120", "25", "5", "3125"],
+                answer: 0,
+                hint: "Permutation formula: P(n,r) = n! / (n-r)!. Here it's P(5,5) = 5!"
+            },
+            {
+                question: "A class has 8 members. How many ways to choose 3 officers?",
+                options: ["56", "336", "24", "512"],
+                answer: 0,
+                hint: "Combination formula: C(n,r) = n! / (r!(n-r)!). No order matters!"
+            },
+            {
+                question: "Find the <strong>MEAN</strong> of: 85, 92, 78, 91, 89",
+                options: ["87", "90.5", "85", "435"],
+                answer: 0,
+                hint: "Mean = Sum of values ÷ Number of values. Add them up first!"
+            },
+            {
+                question: "A shirt costs ₱500. What is the <strong>selling price</strong> with 12% markup?",
+                options: ["₱560", "₱500", "₱412", "₱600"],
+                answer: 0,
+                hint: "Markup = Cost × Markup rate. Selling Price = Cost + Markup"
+            },
+            {
+                question: "Evaluate: \$ \\sin 30^\\circ + \\cos 60^\\circ = ? \\$",
+                options: ["1", "0.5", "1.5", "0"],
+                answer: 0,
+                hint: "sin 30° = 1/2, cos 60° = 1/2. Special angles!"
+            },
+            {
+                question: "Is \$ y = x^2 + 1 \$ a <strong>FUNCTION</strong>?",
+                options: ["Yes - passes vertical line test", "No - passes horizontal line test", "Yes - one-to-one", "No - not defined"],
+                answer: 0,
+                hint: "Vertical Line Test: Every x has exactly one y-value?"
+            },
+            {
+                question: "Find the <strong>INVERSE</strong> of \$ f(x) = 3x - 6 \$",
+                options: ["\$ f^{-1}(x) = \\frac{x+6}{3} \\$", "\$ f^{-1}(x) = 3x + 6 \\$", "\$ f^{-1}(x) = x + 2 \\$", "No inverse"],
+                answer: 0,
+                hint: "Swap x and y, then solve for y: y = 3x - 6 → x = 3y - 6"
+            },
+            {
+                question: "A die is rolled. Probability of getting 4 or 5?",
+                options: ["1/3", "2/3", "1/6", "1/2"],
+                answer: 0,
+                hint: "Favorable outcomes: 4, 5 (2 outcomes). Total: 6. P = favorable/total"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+        let hintShown = false;
+
+        const elements = {
+            questionText: document.getElementById('questionText'),
+            options: document.getElementById('options'),
+            hintBtn: document.getElementById('hintBtn'),
+            hintBox: document.getElementById('hintBox'),
+            hintText: document.getElementById('hintText'),
+            skipBtn: document.getElementById('skipBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            progressFill: document.getElementById('progressFill'),
+            currentScore: document.getElementById('currentScore'),
+            currentQuestion: document.getElementById('currentQuestion'),
+            resultModal: document.getElementById('resultModal'),
+            resultBadge: document.getElementById('resultBadge'),
+            resultTitle: document.getElementById('resultTitle'),
+            resultMessage: document.getElementById('resultMessage'),
+            finalScore: document.getElementById('finalScore'),
+            restartBtn: document.getElementById('restartBtn')
+        };
+
+        function init() {
+            loadQuestion();
+            setupEventListeners();
+        }
+
+        function loadQuestion() {
+            answered = false;
+            hintShown = false;
+            elements.hintBox.classList.remove('show');
+            elements.nextBtn.style.display = 'none';
+            elements.hintBtn.style.display = 'inline-block';
+            elements.skipBtn.style.display = 'inline-block';
+
+            const q = questions[currentQuestion];
+            elements.questionText.innerHTML = q.question;
+            
+            elements.options.innerHTML = '';
+            q.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.innerHTML = `<span>${String.fromCharCode(65 + index)}.</span> ${option}`;
+                div.onclick = () => selectAnswer(index);
+                elements.options.appendChild(div);
+            });
+
+            updateProgress();
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (answered) return;
+
+            answered = true;
+            const correctIndex = questions[currentQuestion].answer;
+            
+            // Disable all options
+            document.querySelectorAll('.option').forEach((opt, index) => {
+                opt.style.pointerEvents = 'none';
+                if (index === correctIndex) {
+                    opt.classList.add('correct');
+                } else if (index === selectedIndex) {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            if (selectedIndex === correctIndex) {
+                score++;
+                elements.currentScore.textContent = score;
+            }
+
+            setTimeout(() => {
+                elements.nextBtn.style.display = 'inline-block';
+                elements.hintBtn.style.display = 'none';
+                elements.skipBtn.style.display = 'none';
+            }, 1500);
+        }
+
+        function showHint() {
+            if (hintShown) return;
+            hintShown = true;
+            const hint = questions[currentQuestion].hint;
+            elements.hintText.textContent = hint;
+            elements.hintBox.classList.add('show');
+        }
+
+        function skipQuestion() {
+            if (answered) return;
+            answered = true;
+            setTimeout(() => {
+                elements.nextBtn.style.display = 'inline-block';
+                elements.hintBtn.style.display = 'none';
+                elements.skipBtn.style.display = 'none';
+            }, 500);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            elements.progressFill.style.width = progress + '%';
+            elements.currentQuestion.textContent = currentQuestion + 1;
+        }
+
+        function showResults() {
+            elements.resultBadge.textContent = getBadge();
+            elements.resultTitle.textContent = getTitle();
+            elements.resultMessage.textContent = getMessage();
+            elements.finalScore.textContent = score;
+            elements.resultModal.style.display = 'flex';
+        }
+
+        function getBadge() {
+            if (score === 10) return '🥇';
+            if (score >= 8) return '🥈';
+            if (score >= 6) return '🥉';
+            if (score >= 4) return '📈';
+            return '📚';
+        }
+
+        function getTitle() {
+            if (score === 10) return "PERFECT SCORE! Math Wizard 🧙‍♂️";
+            if (score >= 8) return "EXCELLENT! Almost Perfect 🌟";
+            if (score >= 6) return "GREAT JOB! Keep Practicing 💪";
+            if (score >= 4) return "Good Start! Review & Retry 📖";
+            return "Keep Learning! You'll Get There! 🚀";
+        }
+
+        function getMessage() {
+            if (score === 10) return "You mastered Grade 11 GenMath!";
+            return `Review questions ${score + 1} to ${questions.length} for improvement.`;
+        }
+
+        function restartGame() {
+            currentQuestion = 0;
+            score = 0;
+            elements.resultModal.style.display = 'none';
+            elements.currentScore.textContent = '0';
+            init();
+        }
+
+        function setupEventListeners() {
+            elements.hintBtn.onclick = showHint;
+            elements.skipBtn.onclick = skipQuestion;
+            elements.nextBtn.onclick = nextQuestion;
+            elements.restartBtn.onclick = restartGame;
+        }
+
+        // Start the game
+        init();
+    </script>
+</body>
+</html>
